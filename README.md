@@ -57,7 +57,7 @@
 **Template Name** - MH Domain.\
 **Name** - Domain
 **Status**   - Done.\
-**Purpose**  - Customised Solution Class Library. which contains all Classes for the Solution. Must always be included.\
+**Purpose**  - Customised Solution Class Library. which contains all Classes for the Solution. Must always be included.
 
 ## License
 See the [MIT](LICENSE) license for rights and limitations under the conditions of the license.
