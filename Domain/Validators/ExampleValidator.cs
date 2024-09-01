@@ -1,12 +1,12 @@
 ﻿namespace Domain.Validators;
 
-public class LogValidator : AbstractValidator<Domain.Models.DmnLog>
+/*public class ExampleValidator : AbstractValidator<Domain.Models.ModelName>
 {
-    public LogValidator()
+    public ExampleValidator()
     {
         RuleFor(p => p.Message).NotEmpty();
         RuleFor(p => p.Level).NotEmpty();
     }
 }
-
+*/
 //  Other validator clases go below

@@ -19,7 +19,7 @@ public class SampleClassTests
      * 2) Copy the method code into your text editor
      * 3) Above the code write the request for example "Using xUnit Framework right a Theory Unit Test for C# code below including examples and Exceptions.
      * 4) Copy all the text and paste into your preferred AI I use Co-Pilot.
-     * 5) Once the test is generated this provides a starting new inline data can be added to comprehensively test the method.
+     * 5) Once the test is generated this provides a starting point  now add inline data can be added to comprehensively test the method.
      * WARNING - AI is a tool don't expect the test to be comprehensive. 
      */
 

@@ -1,36 +1,38 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
+#region Configure Serilog Logging for Minimal API
+builder.Services.AddExceptionHandler<Domain.Functions.GblExceptionHandler>();
 
-builder.Services.AddSwaggerGen();
+//Create Logger from settings from appsettings.json
+var logger = new LoggerConfiguration()
+.ReadFrom.Configuration(builder.Configuration)
+.CreateLogger();
 
-//  Adds All validators that reside in the same assembly as the LogValidator
-builder.Services.AddValidatorsFromAssemblyContaining<Domain.Validators.LogValidator>();
-
-#region Configure Logging in Minimal API
-// Configure Serilog using appsettings.json
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .CreateLogger();
-
-builder.Host.UseSerilog();
+Log.Logger = logger; //Add Logger
+builder.Host.UseSerilog(logger);
 #endregion
 
-//  Add Database Contexts
-//  To Add additional databases copy the line below - Remember to change the context & connection string parameters
-builder.Services.AddDbContext<Domain.Models.LogContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+#region Configure Services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+#endregion
+
+#region Configure Validators
+#endregion
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+#region Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+#endregion
 
+#region Configure Pipeline
 app.AddEndpoints();
-
+app.UseSerilogRequestLogging(); // Add Request Logging
 app.UseHttpsRedirection();
-
 app.Run();
+#endregion
