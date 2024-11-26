@@ -11,7 +11,5 @@ public static class Endpoint
         #region Example Endpoint
         app.MapGet("/", () => example);
         #endregion
-
-
     }
 }

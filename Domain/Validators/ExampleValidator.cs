@@ -1,6 +1,7 @@
 ﻿namespace Domain.Validators;
 
-/*public class ExampleValidator : AbstractValidator<Domain.Models.ModelName>
+/*  
+public class ExampleValidator : AbstractValidator<Domain.Models.ModelName>
 {
     public ExampleValidator()
     {
