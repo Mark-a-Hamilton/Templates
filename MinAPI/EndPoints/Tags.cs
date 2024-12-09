@@ -1,4 +1,4 @@
-﻿namespace MinAPI.EndPoints;
+﻿namespace API.EndPoints;
 
 public static class Tags
 {

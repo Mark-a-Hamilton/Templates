@@ -1,4 +1,4 @@
-﻿namespace MinAPI.Database;
+﻿namespace API.Database;
 
 public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
