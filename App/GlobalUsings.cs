@@ -1,8 +1,14 @@
 ﻿global using Domain.Functions;
+global using Domain.Services;
 global using Domain.Models;
 global using Microsoft.AspNetCore.Diagnostics;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.FileProviders;
+global using Microsoft.Extensions.Options;
 global using OpenTelemetry.Metrics;
 global using Serilog;
+global using System;
 global using System.Diagnostics;
+global using System.IO;

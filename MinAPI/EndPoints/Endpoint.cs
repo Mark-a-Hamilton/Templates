@@ -13,4 +13,4 @@ public static class Endpoint
         Example.MapGet("eg", () => "Fancy that, it works!!!!");
         #endregion
     }
-}
+} 

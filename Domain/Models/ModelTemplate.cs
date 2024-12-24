@@ -15,3 +15,8 @@ public class ModelTemplate
     public DateTime? ModifiedOn { get; set; }
     public string? ModifiedBy { get; set; }
 }
+
+public class TestModel
+{
+    public string? Test { get; set; } 
+}

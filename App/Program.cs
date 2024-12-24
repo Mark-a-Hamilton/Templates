@@ -1,4 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
+//builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 #region Configure Serilog Logging for Minimal API
 builder.Services.AddExceptionHandler<Domain.Functions.GblExceptionHandler>();
@@ -13,7 +14,17 @@ builder.Host.UseSerilog(logger);
 #endregion
 
 #region Configure services
-builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ApiService>();
+// Add HttpClient with BaseAddress from configuration
+builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetSection("ApiSettings").GetValue<string>("BaseAddress"));
+});
+
+builder.Services.AddControllersWithViews(options => 
+{ 
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); 
+});
 builder.Services.AddRazorPages();
 #endregion
 
@@ -50,12 +61,32 @@ if (!app.Environment.IsDevelopment())
 }
 #endregion
 
+#region Security Headers
+app.UseXContentTypeOptions();
+app.UseXXssProtection(options => options.EnabledWithBlockMode());
+app.UseCsp(options => options
+    .BlockAllMixedContent()
+    .StyleSources(s => s.Self().UnsafeInline())
+    .FontSources(s => s.Self())
+    .FormActions(s => s.Self())
+    .FrameAncestors(s => s.Self())
+    .ImageSources(s => s.Self())
+    .ScriptSources(s => s.Self().UnsafeInline()));
+#endregion
+
 #region Configure Pipeline
 app.UseExceptionHandler(_ => { });
 app.MapPrometheusScrapingEndpoint(); // Collect Telemetry
 app.UseSerilogRequestLogging(); // Add Request Logging
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Configure the application to use static files from the Domain project
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")),
+    RequestPath = "/wwwroot"
+});
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllerRoute(

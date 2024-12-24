@@ -1,0 +1,10 @@
+﻿@{
+    ViewData["Title"] = "Test API";
+    var apiData = ViewData["ApiData"] as string; // Retrieve the data from ViewData
+}
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+    <p>Test page</p>
+    <p>API Data: @apiData</p> <!-- Display the data -->
+</div>
