@@ -1,5 +1,4 @@
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 #region Configure Serilog Logging for Minimal API
 builder.Services.AddExceptionHandler<Domain.Functions.GblExceptionHandler>();
