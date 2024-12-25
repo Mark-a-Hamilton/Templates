@@ -12,12 +12,16 @@ Log.Logger = logger; //Add Logger
 builder.Host.UseSerilog(logger);
 #endregion
 
-#region Configure services
+#region Register Services
 builder.Services.AddScoped<ApiService>();
+builder.Services.AddScoped<CssService>();
+#endregion
+
+#region Configure services
 // Add HttpClient with BaseAddress from configuration
 builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri(builder.Configuration.GetSection("ApiSettings").GetValue<string>("BaseAddress"));
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:BaseAddress"));
 });
 
 builder.Services.AddControllersWithViews(options => 
@@ -86,6 +90,7 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")),
     RequestPath = "/wwwroot"
 });
+
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllerRoute(

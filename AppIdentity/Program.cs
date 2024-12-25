@@ -12,6 +12,11 @@ Log.Logger = logger; //Add Logger
 builder.Host.UseSerilog(logger);
 #endregion
 
+#region Register Services
+builder.Services.AddScoped<ApiService>();
+builder.Services.AddScoped<CssService>();
+#endregion
+
 #region Configure services
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string 'Default' not found.");
@@ -22,11 +27,10 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddScoped<ApiService>();
 // Add HttpClient with BaseAddress from configuration
 builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri(uriString: builder.Configuration.GetSection("ApiSettings").GetValue<string>("BaseAddress"));
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:BaseAddress"));
 });
 
 builder.Services.AddControllersWithViews();
@@ -93,7 +97,9 @@ app.UseStaticFiles();
 
 // Configure the application to use static files from the Domain project
 app.UseStaticFiles(new StaticFileOptions { 
-    FileProvider = new PhysicalFileProvider( Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")), RequestPath = "/wwwroot" });
+    FileProvider = new PhysicalFileProvider( Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")), 
+    RequestPath = "/wwwroot" 
+});
 
 app.UseRouting();
 app.UseAuthorization();

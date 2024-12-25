@@ -1,24 +1,13 @@
 ﻿@inject IConfiguration _appsettings
+@inject CssService _cssService
 @{
     #region Set / Validate Variables
-    string appTitle = "App";                                            //  Application title
-    string? skin = _appsettings.GetValue<string>("Layout:Skin");        //  Get Skin from appsettings.json
-    string? style = _appsettings.GetValue<string>("Layout:Style");      //  Get Style from appsettings.json
-    string myTheme = "dark";                                            //  Default Theme
-    string myClass = "navbar navbar-expand-lg";                         //  Default Classes
-    //  Validate selected skin Default is spacelab
-    skin = (new[] { "cerulean", "cosmo", "cyborg", "darkly", "quartz", "solar", "superhero", "vapor", "zephyr" }.Contains(skin)) ? skin : "spacelab";
-    skin = $"~/wwwroot/css/{skin}.min.css";                             //  Create CSS string
-    style = (new[] { "2", "3", "4" }.Contains(style)) ? style : "1";    //  Validate selected style Default is 1
-    string myColor = $"navbarColor0{style}";                            //  Create NavbarColor variable  
-    if (style == "1") myClass = $"{myClass} bg-primary";                //  Style = 1 config
-    else if (style == "2") myClass = $"{myClass} bg-dark";              //  Style = 2 config
-    else if (style == "3")                                              //  Style = 3 config
-    {                                            
-        myClass = $"{myClass} bg-light";
-        myTheme = "light";
-    }
-    else myClass = $"{myClass} bg-body-tertiary";                       //  Style = 4 config
+    string appTitle = "App";                                                                    // Set Application title
+    string skin = _cssService.VerifyCssFilename(_appsettings.GetValue<string>("Layout:Skin"));  // Set Skin
+    string style = _cssService.VerifyCssStyle(_appsettings.GetValue<string>("Layout:Style"));   // Set Style
+    string myTheme = (style == "3") ? "light" : "dark";                                         // Set Theme
+    string myClass = _cssService.SetCssClass("navbar navbar-expand-lg", style);                 // Set Class based on Class & style  
+    string myColor = $"navbarColor0{style}";                                                    // Create NavbarColor variable
     #endregion
 }
 <!DOCTYPE html>
