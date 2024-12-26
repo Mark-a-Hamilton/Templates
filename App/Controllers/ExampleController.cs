@@ -29,7 +29,7 @@ public class ExampleController : Controller
 
     #region Stack Trace on Error !!!!
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    [Route("example/error")]
+    [Route("error")]
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

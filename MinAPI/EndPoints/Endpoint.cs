@@ -9,8 +9,6 @@ public static class Endpoint
         var Example = api.MapGroup(Tags.Example.ToLower()).WithTags(Tags.Example); // adds the tablename to the endpoint and groups them
         #endregion
 
-        #region Example Endpoint
-        Example.MapGet("eg", () => "Fancy that, it works!!!!");
-        #endregion
+        Example.MapGet("eg", () => "Fancy that, it works!!!!");     // Example Endpoint
     }
 } 

@@ -14,7 +14,7 @@ builder.Host.UseSerilog(logger);
 
 #region Register Services
 builder.Services.AddScoped<ApiService>();
-builder.Services.AddScoped<CssService>();
+builder.Services.AddScoped<ConfigService>();
 #endregion
 
 #region Configure services
@@ -97,5 +97,16 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-app.Run();
 #endregion
+
+#region Map only the custom endpoints 
+app.UseEndpoints(endpoints =>
+{
+    //    endpoints.MapControllerRoute( name: "default", pattern: "{controller=Home}/{action=Index}/{id?}"); 
+
+    // Map your custom API endpoints
+    endpoints.MapControllerRoute(name: "api", pattern: "api/{controller=Example}/{action=Test}");
+});
+
+#endregion
+app.Run();

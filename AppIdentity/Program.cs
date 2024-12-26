@@ -14,7 +14,7 @@ builder.Host.UseSerilog(logger);
 
 #region Register Services
 builder.Services.AddScoped<ApiService>();
-builder.Services.AddScoped<CssService>();
+builder.Services.AddScoped<ConfigService>();
 #endregion
 
 #region Configure services

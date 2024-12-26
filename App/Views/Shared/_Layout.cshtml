@@ -1,13 +1,12 @@
 ﻿@inject IConfiguration _appsettings
-@inject CssService _cssService
+@inject ConfigService _configService
 @{
-    #region Set / Validate Variables
-    string appTitle = "App";                                                                    // Set Application title
-    string skin = _cssService.VerifyCssFilename(_appsettings.GetValue<string>("Layout:Skin"));  // Set Skin
-    string style = _cssService.VerifyCssStyle(_appsettings.GetValue<string>("Layout:Style"));   // Set Style
-    string myTheme = (style == "3") ? "light" : "dark";                                         // Set Theme
-    string myClass = _cssService.SetCssClass("navbar navbar-expand-lg", style);                 // Set Class based on Class & style  
-    string myColor = $"navbarColor0{style}";                                                    // Create NavbarColor variable
+    #region Set / Verify Variables
+    string appTitle = "App";                                                        // Set Application title
+    string style = _configService.VerifyCssStyle(_appsettings);                     // Set Style
+    string myTheme = (style == "3") ? "light" : "dark";                             // Set Theme
+    string myClass = _configService.SetCssClass("navbar navbar-expand-lg", style);  // Set Class based on Class & style
+    string myColor = $"navbarColor0{style}";                                        // Create navbarColor variable
     #endregion
 }
 <!DOCTYPE html>
@@ -19,11 +18,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" crossorigin="anonymous"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="@skin" asp-append-version="true" />
-    <!--<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />-->
+    <link rel="stylesheet" href=@_configService.VerifyCssFilename(_appsettings) asp-append-version="true" />
     <link rel="stylesheet" href="~/App.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/wwwroot/css/site.css" asp-append-version="true" />
-    <!--<link rel="stylesheet" href="~/wwwroot/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />-->
+    <link rel="stylesheet" href=@_configService.GetSiteCss() asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -60,7 +57,7 @@
     </div>
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - @appTitle - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2025 - @appTitle - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/wwwroot/lib/jquery/jquery.min.js" asp-append-version="true"></script>
@@ -68,7 +65,7 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"></script>
-    <script src="~/wwwroot/js/site.js" asp-append-version="true"></script>
+    <script src=@_configService.GetSiteJs() asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
