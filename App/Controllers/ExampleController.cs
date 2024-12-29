@@ -18,18 +18,18 @@ public class ExampleController : Controller
     #endregion
 
     #region Test Screen Endpoint calls
-    [Route("test")]
+    [HttpGet("test")] // Use the HttpGet Attribute to specify the type of endpoint
     public async Task<IActionResult> Test()
     {
         var data = await _apiService.GetDataAsync("api/example/eg");
-        ViewData["ApiData"] = data; // Pass the data to the view using ViewData return View("Test");
+        ViewData["ApiData"] = data; // Pass the data to the view using ViewData
         return View("Test");
     }
     #endregion
 
     #region Stack Trace on Error !!!!
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    [Route("error")]
+    [HttpGet("error")]
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

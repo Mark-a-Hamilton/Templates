@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configure Serilog Logging for Minimal API
-builder.Services.AddExceptionHandler<Domain.Functions.GblExceptionHandler>();
+builder.Services.AddSingleton<IExceptionHandler, GblExceptionHandler>();
 
 //Create Logger from settings from appsettings.json
 var logger = new LoggerConfiguration()
@@ -21,13 +21,26 @@ builder.Services.AddScoped<ConfigService>();
 // Add HttpClient with BaseAddress from configuration
 builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:BaseAddress"));
+    var baseAddress = builder.Configuration.GetValue<string>("ApiSettings:BaseAddress");
+    if (string.IsNullOrEmpty(baseAddress))
+    {
+        throw new InvalidOperationException("The BaseAddress setting is missing or empty in the configuration.");
+    }
+
+    client.BaseAddress = new Uri(baseAddress);
 });
 
-builder.Services.AddControllersWithViews(options => 
-{ 
-    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()); 
+builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
+{
+    var baseAddress = builder.Configuration.GetValue<string>("ApiSettings:BaseAddress");
+    if (string.IsNullOrEmpty(baseAddress))
+    {
+        throw new InvalidOperationException("The BaseAddress setting is missing or empty in the configuration.");
+    }
+
+    client.BaseAddress = new Uri(baseAddress);
 });
+
 builder.Services.AddRazorPages();
 #endregion
 
@@ -36,7 +49,7 @@ builder.Services.AddOpenTelemetry()
     .WithMetrics(opt =>
     {
         opt.AddPrometheusExporter();
-        opt.AddMeter("Microsoft.AspNetCore.Hosting", 
+        opt.AddMeter("Microsoft.AspNetCore.Hosting",
             "Microsoft.AspNetCore.Server.Kestrel");
         opt.AddView("request-duration", new ExplicitBucketHistogramConfiguration
         {
@@ -90,7 +103,6 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")),
     RequestPath = "/wwwroot"
 });
-
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllerRoute(
@@ -99,14 +111,4 @@ app.MapControllerRoute(
 app.MapRazorPages();
 #endregion
 
-#region Map only the custom endpoints 
-app.UseEndpoints(endpoints =>
-{
-    //    endpoints.MapControllerRoute( name: "default", pattern: "{controller=Home}/{action=Index}/{id?}"); 
-
-    // Map your custom API endpoints
-    endpoints.MapControllerRoute(name: "api", pattern: "api/{controller=Example}/{action=Test}");
-});
-
-#endregion
 app.Run();

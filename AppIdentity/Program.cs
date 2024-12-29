@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configure Serilog Logging for Minimal API
-builder.Services.AddExceptionHandler<Domain.Functions.GblExceptionHandler>();
+builder.Services.AddSingleton<IExceptionHandler, GblExceptionHandler>();
 
 //Create Logger from settings from appsettings.json
 var logger = new LoggerConfiguration()
@@ -30,7 +30,13 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 // Add HttpClient with BaseAddress from configuration
 builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("ApiSettings:BaseAddress"));
+    var baseAddress = builder.Configuration.GetValue<string>("ApiSettings:BaseAddress");
+    if (string.IsNullOrEmpty(baseAddress))
+    {
+        throw new InvalidOperationException("The BaseAddress setting is missing or empty in the configuration.");
+    }
+
+    client.BaseAddress = new Uri(baseAddress);
 });
 
 builder.Services.AddControllersWithViews();
@@ -93,11 +99,11 @@ app.UseExceptionHandler(_ => { });
 app.MapPrometheusScrapingEndpoint(); // Collect Telemetry
 app.UseSerilogRequestLogging(); // Add Request Logging
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 
 // Configure the application to use static files from the Domain project
-app.UseStaticFiles(new StaticFileOptions { 
-    FileProvider = new PhysicalFileProvider( Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")), 
+app.UseStaticFiles(new StaticFileOptions 
+{ 
+    FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")), 
     RequestPath = "/wwwroot" 
 });
 
@@ -110,6 +116,6 @@ app.MapControllerRoute(
     .WithStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
+#endregion
 
 app.Run();
-#endregion

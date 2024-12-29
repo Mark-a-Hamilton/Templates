@@ -1,18 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace Domain.Services;
+﻿namespace Domain.Services;
 
 /// <summary>
-/// CssService does all the actions relating to the configuration of CSS files
+/// ConfigService does all the actions relating to the configuration of CSS and JS files
 /// </summary>
-public class ConfigService
+public class ConfigService(IWebHostEnvironment env)
 {
-    private readonly IWebHostEnvironment _env;
-
-    public ConfigService(IWebHostEnvironment env)
-    {
-        _env = env;
-    }
+    private readonly IWebHostEnvironment _env = env;
+    private static readonly string[] sourceArray = ["1", "2", "3"];
 
     /// <summary>
     /// GetCssFilenames returns a list of filenames from the Domain project wwwroot/css folder which are minified.
@@ -32,6 +26,12 @@ public class ConfigService
                         .Replace(".min", ""));
     }
 
+    /// <summary>
+    /// Get site.css file from domain/wwwroot/css directory
+    /// </summary>
+    /// <returns>the full path including the site.css file</returns>
+    /// <exception cref="DirectoryNotFoundException">css Directory not found in Domain</exception>
+    /// <exception cref="FileNotFoundException">site.css file not found in css directory</exception>
     public string GetSiteCss()
     {
         // Adjust the path to point to the Domain project's wwwroot/css folder
@@ -44,14 +44,16 @@ public class ConfigService
         // Get the full path of the site.css file
         var siteCssPath = Directory.GetFiles(cssDir, "site.css").FirstOrDefault();
 
-        if (siteCssPath == null)
-        {
+        return siteCssPath ?? 
             throw new FileNotFoundException($"The file 'site.css' does not exist in the specified directory : {cssDir}.");
-        }
-
-        return siteCssPath;
     }
 
+    /// <summary>
+    /// Get site.js file from domain/wwwroot/js directory
+    /// </summary>
+    /// <returns>the full path including the site.js file</returns>
+    /// <exception cref="DirectoryNotFoundException">js Directory not found in Domain</exception>
+    /// <exception cref="FileNotFoundException">site.js file not found in js directory</exception>
     public string GetSiteJs()
     {
         // Adjust the path to point to the Domain project's wwwroot/js folder
@@ -61,16 +63,34 @@ public class ConfigService
             throw new DirectoryNotFoundException($"The directory '{jsDir}' does not exist.");
         }
 
-        // Get the full path of the site.js file
+   
         var siteJsPath = Directory.GetFiles(jsDir, "site.js").FirstOrDefault();
 
-        if (siteJsPath == null)
-        {
+        return siteJsPath ?? 
             throw new FileNotFoundException($"The file 'site.js' does not exist in the specified directory : {jsDir}.");
+    }
+
+    /// <summary>
+    /// Get site.js file from domain/wwwroot/js directory
+    /// </summary>
+    /// <returns>the full path including the site.js file</returns>
+    /// <exception cref="DirectoryNotFoundException">js Directory not found in Domain</exception>
+    /// <exception cref="FileNotFoundException">site.js file not found in js directory</exception>
+    public string GetJQuery()
+    {
+        // Adjust the path to point to the Domain project's wwwroot/js folder
+        var jDir = Path.Combine(_env.ContentRootPath, "..", "Domain", "wwwroot", "lib", "jquery", "dist");
+        if (!Directory.Exists(jDir))
+        {
+            throw new DirectoryNotFoundException($"The directory '{jDir}' does not exist.");
         }
 
-        return siteJsPath;
+        var siteJQueryPath = Directory.GetFiles(jDir, "jquery.min.js").FirstOrDefault();
+
+        return siteJQueryPath ??
+            throw new FileNotFoundException($"The file 'jquery.min.js' does not exist in the specified directory : {jDir}.");
     }
+
 
     /// <summary>
     /// Selects the CSS File if it exists in the Domain/wwwroot/css directory otherwise will be spacelab which is the default
@@ -89,10 +109,10 @@ public class ConfigService
     /// </summary>
     /// <param name="appsettings">The configuration settings from the appsettings.json file</param>
     /// <returns>Ethier the selecred style if valid or "1" as defeault style.</returns>
-    public string VerifyCssStyle(IConfiguration appsettings)
+    public static string? VerifyCssStyle(IConfiguration appsettings)
     {
         var style = appsettings.GetValue<string>("Layout:Style");           // Read the Style value from appsettings.json
-        return (new[] { "1", "2", "3" }.Contains(style)) ? style : "4";     // Verify selected style Default is 1
+        return sourceArray.Contains(style) ? style : "4";     // Verify selected style Default is 1
     }
 
     /// <summary>
@@ -101,11 +121,14 @@ public class ConfigService
     /// <param name="cssClass"></param>
     /// <param name="style"></param>
     /// <returns>the full class path</returns>
-    public string SetCssClass(string cssClass, string style)
+    public static string SetCssClass(string cssClass, string style)
     {
-        if (style == "1") return $"{cssClass} bg-primary";      //  Style = 1 config
-        else if (style == "2") return $"{cssClass} bg-dark";    //  Style = 2 config
-        else if (style == "3") return $"{cssClass} bg-light";   //  Style = 3 config
-        else return $"{cssClass} bg-body-tertiary";             //  Style = 4 config
+        return style switch
+        {
+            "1" => $"{cssClass} bg-primary",
+            "2" => $"{cssClass} bg-dark",
+            "3" => $"{cssClass} bg-light", 
+            _ => $"{cssClass} bg-body-tertiary" 
+        };
     }
 }

@@ -4,7 +4,9 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Mvc.ModelBinding;
+global using Microsoft.Data.SqlClient;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using System;
@@ -16,7 +18,3 @@ global using System.Linq;
 global using System.Reflection.Metadata;
 global using System.Text;
 global using System.Threading.Tasks;
-
-
-
-

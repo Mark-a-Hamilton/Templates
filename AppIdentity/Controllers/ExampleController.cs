@@ -18,7 +18,7 @@ public class ExampleController : Controller
     #endregion
 
     #region Test Screen Endpoint calls
-    [Route("test")]
+    [HttpGet("test")]
     public async Task<IActionResult> Test()
     {
         var data = await _apiService.GetDataAsync("api/example/eg");
@@ -29,7 +29,7 @@ public class ExampleController : Controller
 
     #region Stack Trace on Error !!!!
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    [Route("error")]
+    [HttpGet("error")]
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

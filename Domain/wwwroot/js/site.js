@@ -7,3 +7,13 @@ function SwitchMode() {    // Function to switch between Light and dark mode
         document.documentElement.getAttribute("data-bs-theme") == "dark" ? "light" : "dark"
     );
 }
+
+function displayErrorToast() {
+    const errorMessage = '@Context.Request.Headers["X-Error-Message"]';
+    if (errorMessage) {
+        const errorToast = document.getElementById("errorToast");
+        const errorMessageSpan = document.getElementById("errorMessage");
+        errorMessageSpan.textContent = errorMessage;
+        errorToast.style.display = "block";
+    }
+}
