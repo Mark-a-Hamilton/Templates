@@ -3,12 +3,11 @@ var builder = WebApplication.CreateBuilder(args);
 #region Configure Serilog Logging for Minimal API
 builder.Services.AddSingleton<IExceptionHandler, GblExceptionHandler>();
 
-//Create Logger from settings from appsettings.json
 var logger = new LoggerConfiguration()
-.ReadFrom.Configuration(builder.Configuration)
-.CreateLogger();
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
 
-Log.Logger = logger; //Add Logger
+Log.Logger = logger;
 builder.Host.UseSerilog(logger);
 #endregion
 
@@ -22,7 +21,7 @@ builder.Services.AddScoped<ConfigService>();
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string 'Default' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
- 
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -48,19 +47,10 @@ builder.Services.AddOpenTelemetry()
     .WithMetrics(opt =>
     {
         opt.AddPrometheusExporter();
-        opt.AddMeter("Microsoft.AspNetCore.Hosting",
-            "Microsoft.AspNetCore.Server.Kestrel");
+        opt.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel");
         opt.AddView("request-duration", new ExplicitBucketHistogramConfiguration
         {
-            Boundaries = [0.005,
-            0.01,
-            0.025,
-            0.05,
-            0.075,
-            0.1,
-            0.25,
-            0.5,
-            0.75]
+            Boundaries = new double[] { 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75 }
         });
     });
 #endregion
@@ -68,7 +58,6 @@ builder.Services.AddOpenTelemetry()
 var app = builder.Build();
 
 #region Configure the HTTP request pipeline.
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -76,7 +65,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 #endregion
@@ -99,23 +87,53 @@ app.UseExceptionHandler(_ => { });
 app.MapPrometheusScrapingEndpoint(); // Collect Telemetry
 app.UseSerilogRequestLogging(); // Add Request Logging
 app.UseHttpsRedirection();
-
-// Configure the application to use static files from the Domain project
-app.UseStaticFiles(new StaticFileOptions 
-{ 
-    FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")), 
-    RequestPath = "/wwwroot" 
+app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, "..", "Domain", "wwwroot")),
+    RequestPath = "",
+    ServeUnknownFileTypes = true, // This allows serving files with unknown MIME types
+    DefaultContentType = "application/octet-stream", // Default MIME type for unknown file types
+    OnPrepareResponse = ctx =>
+    {
+        if (ctx.File.Name.EndsWith(".css"))
+        {
+            ctx.Context.Response.ContentType = "text/css";
+        }
+        else if (ctx.File.Name.EndsWith(".js"))
+        {
+            ctx.Context.Response.ContentType = "application/javascript";
+        }
+    }
 });
 
 app.UseRouting();
 app.UseAuthorization();
-app.MapStaticAssets();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
+#endregion
+
+#region Configure Middleware
+app.UseCustomCSP();     // Content Security Protocol Rules
+
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next.Invoke();
+        if (context.Response.StatusCode == 404)
+        {
+            context.Response.Headers.Add("X-Error-Message", "Page not found");
+        }
+    }
+    catch (Exception ex)
+    {
+        context.Response.Headers.Add("X-Error-Message", ex.Message);
+        throw;
+    }
+});
 #endregion
 
 app.Run();

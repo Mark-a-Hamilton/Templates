@@ -1,4 +1,5 @@
 ﻿global using AppIdentity.Data;
+global using Domain.Extensions;
 global using Domain.Functions;
 global using Domain.Services;
 global using Domain.Models;
@@ -13,6 +14,7 @@ global using OpenTelemetry.Metrics;
 global using System;
 global using Microsoft.AspNetCore.Diagnostics;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using Serilog;
 global using System.Diagnostics;
 global using System.IO;

@@ -1,19 +1,27 @@
 ﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
-function SwitchMode() {    // Function to switch between Light and dark mode
+// Function to switch between Light and dark mode
+function SwitchMode()
+{    
     document.documentElement.setAttribute(
         "data-bs-theme",
-        document.documentElement.getAttribute("data-bs-theme") == "dark" ? "light" : "dark"
-    );
+        document.documentElement.getAttribute("data-bs-theme") == "dark" ? "light" : "dark");
 }
 
-function displayErrorToast() {
-    const errorMessage = '@Context.Request.Headers["X-Error-Message"]';
-    if (errorMessage) {
-        const errorToast = document.getElementById("errorToast");
-        const errorMessageSpan = document.getElementById("errorMessage");
-        errorMessageSpan.textContent = errorMessage;
-        errorToast.style.display = "block";
-    }
+function displayToastrNotification() {
+    fetch(window.location.href)
+        .then(response => {
+            const errorMessage = response.headers.get('X-Error-Message');
+            if (errorMessage) {
+                toastr.error(errorMessage, 'Error', { timeOut: 5000 });
+            } else if (!response.ok) {
+                toastr.error('An unexpected error occurred', 'Error', { timeOut: 5000 });
+            }
+        })
+        .catch(() => {
+            toastr.error('An unexpected error occurred', 'Error', { timeOut: 5000 });
+        });
 }
+
+document.addEventListener("DOMContentLoaded", displayToastrNotification);
