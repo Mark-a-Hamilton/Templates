@@ -1,6 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 
-#region Configure Serilog Logging for Minimal API
+#region Configure Serilog Logging
 builder.Services.AddSingleton<IExceptionHandler, GblExceptionHandler>();
 
 var logger = new LoggerConfiguration()
@@ -9,24 +9,14 @@ var logger = new LoggerConfiguration()
 
 Log.Logger = logger;
 builder.Host.UseSerilog(logger);
-#endregion
+#endregion Configure Serilog Logging
 
 #region Register Services
 builder.Services.AddScoped<ApiService>();
 builder.Services.AddScoped<ConfigService>();
-#endregion
+#endregion Register Services
 
-#region Configure services
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string 'Default' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-
-// Add HttpClient with BaseAddress from configuration
+#region Configure Services
 builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
 {
     var baseAddress = builder.Configuration.GetValue<string>("ApiSettings:BaseAddress");
@@ -38,9 +28,7 @@ builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
     client.BaseAddress = new Uri(baseAddress);
 });
 
-builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-#endregion
 
 #region Configure Telemetry
 builder.Services.AddOpenTelemetry()
@@ -53,21 +41,19 @@ builder.Services.AddOpenTelemetry()
             Boundaries = new double[] { 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75 }
         });
     });
-#endregion
+#endregion Configure Telemetry
+
+#endregion Configure Services
 
 var app = builder.Build();
 
 #region Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-#endregion
+#endregion Configure the HTTP request pipeline.
 
 #region Security Headers
 app.UseXContentTypeOptions();
@@ -80,7 +66,7 @@ app.UseCsp(options => options
     .FrameAncestors(s => s.Self())
     .ImageSources(s => s.Self())
     .ScriptSources(s => s.Self().UnsafeInline()));
-#endregion
+#endregion Security Headers
 
 #region Configure Pipeline
 app.UseExceptionHandler(_ => { });
@@ -113,11 +99,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
-#endregion
+#endregion Configure Pipeline
 
 #region Configure Middleware
 app.UseCustomCSP();     // Content Security Protocol Rules
-
 app.Use(async (context, next) =>
 {
     try
@@ -125,15 +110,15 @@ app.Use(async (context, next) =>
         await next.Invoke();
         if (context.Response.StatusCode == 404)
         {
-            context.Response.Headers.Add("X-Error-Message", "Page not found");
+            context.Response.Headers.Append("X-Error-Message", "Page not found");
         }
     }
     catch (Exception ex)
     {
-        context.Response.Headers.Add("X-Error-Message", ex.Message);
+        context.Response.Headers.Append("X-Error-Message", ex.Message);
         throw;
     }
 });
-#endregion
+#endregion Configure Middleware
 
 app.Run();

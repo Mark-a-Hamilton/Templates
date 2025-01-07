@@ -1,0 +1,14 @@
+﻿global using APIIdentity.EndPoints;
+global using APIIdentity.Settings;
+global using Domain.Functions;
+global using Domain.Models;
+global using Domain.Validators;
+global using FluentValidation;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.AspNetCore.Diagnostics;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.IdentityModel.Tokens;
+global using Serilog;
+global using System;
+global using System.ComponentModel.DataAnnotations;
+global using System.Text;
