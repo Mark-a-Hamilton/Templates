@@ -1,5 +1,5 @@
-﻿namespace APIIdentity.EndPoints
-{
+﻿namespace APIIdentity.EndPoints;
+
     public static class Endpoint
     {
         public static void AddEndpoints(this IEndpointRouteBuilder app)
@@ -16,4 +16,3 @@
             #endregion Endpoints
         }
     }
-}

@@ -11,3 +11,4 @@ global using Serilog;
 global using System;
 global using System.Diagnostics;
 global using System.IO;
+global using APIIdentity.Entities;

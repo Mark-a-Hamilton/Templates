@@ -1,26 +1,36 @@
-﻿namespace APIIdentity.Entities
+﻿namespace APIIdentity.Entities;
+
+public abstract class BaseDbContext : IdentityDbContext<User>
 {
-    public abstract class BaseDbContext : DbContext
+    private readonly UserManager<User> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public BaseDbContext(DbContextOptions<DataContext> options, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
+        : base(options)
     {
-        public override int SaveChanges()
+        _userManager = userManager;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public override int SaveChanges()
+    {
+        var entries = ChangeTracker.Entries<BaseEntity>();
+        var currentUser = _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User).Result;
+
+        foreach (var entry in entries)
         {
-            var entries = ChangeTracker.Entries<BaseEntity>();
-
-            foreach (var entry in entries)
+            if (entry.State == EntityState.Added)
             {
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.CreatedOn = DateTime.UtcNow;
-                    entry.Entity.CreatedBy = "System"; // Replace with actual user
-                }
-                else if (entry.State == EntityState.Modified)
-                {
-                    entry.Entity.ModifiedOn = DateTime.UtcNow;
-                    entry.Entity.ModifiedBy = "System"; // Replace with actual user
-                }
+                entry.Entity.CreatedOn = DateTime.UtcNow;
+                entry.Entity.CreatedBy = currentUser?.UserName ?? "System"; // Replace with actual user
             }
-
-            return base.SaveChanges();
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.ModifiedOn = DateTime.UtcNow;
+                entry.Entity.ModifiedBy = currentUser?.UserName ?? "System"; // Replace with actual user
+            }
         }
+
+        return base.SaveChanges();
     }
 }

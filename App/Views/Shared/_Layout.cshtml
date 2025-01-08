@@ -2,15 +2,15 @@
 @inject ConfigService _config
 @{
     #region Set / Verify Variables
-    string appTitle = "App";                                                    // Set Application title
-    string? style = ConfigService.VerifyStyle(_appsettings);                    // Set Style
+    string appTitle = "App";     // Set Application title
+    string? style = ConfigService.VerifyStyle(_appsettings);                        // Set Style
     if (string.IsNullOrEmpty(style))
     {
         throw new InvalidOperationException("The style setting is missing or empty in the configuration.");
     }
-    string myTheme = (style == "3") ? "light" : "dark";                         // Set Theme
-    string myClass = ConfigService.SetClass("navbar navbar-expand-lg", style);  // Set Class based on Class & style
-    string myColor = $"navbarColor0{style}";                                    // Create navbarColor variable
+    string myTheme = (style == "3") ? "light" : "dark";                             // Set Theme
+    string myClass = ConfigService.SetClass("navbar navbar-expand-lg", style);      // Set Class based on Class & style
+    string myColor = $"navbarColor0{style}";                                        // Create navbarColor variable
     #endregion
 }
 <!DOCTYPE html>

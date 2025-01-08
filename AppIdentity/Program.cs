@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configure Serilog Logging
@@ -29,6 +32,13 @@ builder.Services.AddHttpClient<ApiService>((serviceProvider, client) =>
 });
 
 builder.Services.AddRazorPages();
+
+// Add Identity services
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<DataContext>();
 
 #region Configure Telemetry
 builder.Services.AddOpenTelemetry()
@@ -94,7 +104,8 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.UseRouting();
-app.UseAuthorization();
+app.UseAuthentication();    // Add Authentication
+app.UseAuthorization();     // Add Authorization
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

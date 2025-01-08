@@ -14,6 +14,15 @@ builder.Host.UseSerilog(logger);
 #region Configure Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add Identity services
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<DataContext>();
+
+builder.Services.AddControllersWithViews();
 #endregion Configure Services
 
 #region Configure Validators
@@ -58,11 +67,12 @@ if (app.Environment.IsDevelopment())
 }
 #endregion HTTP request pipeline
 
-app.AddEndpoints();
 app.UseSerilogRequestLogging(); // Add Request Logging
 app.UseHttpsRedirection();
 app.UseAuthentication();    // Add Authentication
 app.UseAuthorization();     // Add Authorisation 
+
+app.MapControllers();
 #endregion Configure Pipeline
 
 app.Run();
