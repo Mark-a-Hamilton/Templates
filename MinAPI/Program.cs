@@ -65,4 +65,9 @@ app.UseAuthentication();    // Add Authentication
 app.UseAuthorization();     // Add Authorisation 
 #endregion Configure Pipeline
 
+#region Configure Middleware
+app.UseCustomCSP();                 // Content Security Protocol Rules
+app.UseGlobalExceptionHandler();
+#endregion Configure Middleware
+
 app.Run();

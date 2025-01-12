@@ -3,13 +3,15 @@
 
 // Function to switch between Light and dark mode
 function SwitchMode()
-{    
+{   
+    console.log("SwicthMode executed");
     document.documentElement.setAttribute(
         "data-bs-theme",
         document.documentElement.getAttribute("data-bs-theme") == "dark" ? "light" : "dark");
 }
 
 function displayToastrNotification() {
+    console.log("displayToastrNotification executed");
     fetch(window.location.href)
         .then(response => {
             const errorMessage = response.headers.get('X-Error-Message');
@@ -25,3 +27,4 @@ function displayToastrNotification() {
 }
 
 document.addEventListener("DOMContentLoaded", displayToastrNotification);
+

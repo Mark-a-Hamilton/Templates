@@ -16,6 +16,7 @@ public class GblExceptionHandler : IExceptionHandler
         {
             ArgumentNullException or ArgumentException => (StatusCodes.Status400BadRequest, "Bad request"),
             InvalidOperationException => (StatusCodes.Status409Conflict, "Invalid operation"),
+            PageNotFoundException => (StatusCodes.Status404NotFound, "Web page not found"),
             FileNotFoundException => (StatusCodes.Status404NotFound, "File not found"),
             DirectoryNotFoundException => (StatusCodes.Status404NotFound, "Directory not found"),
             UnauthorizedAccessException => (StatusCodes.Status403Forbidden, "Access denied"),
@@ -30,7 +31,8 @@ public class GblExceptionHandler : IExceptionHandler
 
         context.Response.StatusCode = statusCode;
         context.Response.Headers.Append("X-Error-Message", errorMessage);
-        await Task.CompletedTask;
+        //await Task.CompletedTask;
+        await context.Response.WriteAsync(errorMessage); // Add this line
         return true;
     }
 }

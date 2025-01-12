@@ -12,3 +12,4 @@ global using System;
 global using System.Diagnostics;
 global using System.IO;
 global using APIIdentity.Entities;
+global using Microsoft.EntityFrameworkCore;

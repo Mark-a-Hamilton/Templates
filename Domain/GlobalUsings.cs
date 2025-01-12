@@ -1,4 +1,5 @@
-﻿global using Domain.Middleware;
+﻿global using Domain.Exceptions;
+global using Domain.Middleware;
 global using FluentValidation;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Diagnostics;
@@ -22,6 +23,3 @@ global using System.Reflection.Metadata;
 global using System.Text;
 global using System.Threading.Tasks;
 global using System.ComponentModel.DataAnnotations;
-
-
-

@@ -102,23 +102,8 @@ app.MapRazorPages();
 #endregion Configure Pipeline
 
 #region Configure Middleware
-app.UseCustomCSP();     // Content Security Protocol Rules
-app.Use(async (context, next) =>
-{
-    try
-    {
-        await next.Invoke();
-        if (context.Response.StatusCode == 404)
-        {
-            context.Response.Headers.Append("X-Error-Message", "Page not found");
-        }
-    }
-    catch (Exception ex)
-    {
-        context.Response.Headers.Append("X-Error-Message", ex.Message);
-        throw;
-    }
-});
+app.UseCustomCSP();                 // Content Security Protocol Rules
+app.UseGlobalExceptionHandler();
 #endregion Configure Middleware
 
 app.Run();

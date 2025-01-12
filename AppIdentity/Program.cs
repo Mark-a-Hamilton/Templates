@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 #region Configure Serilog Logging
@@ -37,7 +34,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
-builder.Services.AddIdentityCore<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentityCore<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<DataContext>();
 
 #region Configure Telemetry
@@ -113,23 +110,8 @@ app.MapRazorPages();
 #endregion Configure Pipeline
 
 #region Configure Middleware
-app.UseCustomCSP();     // Content Security Protocol Rules
-app.Use(async (context, next) =>
-{
-    try
-    {
-        await next.Invoke();
-        if (context.Response.StatusCode == 404)
-        {
-            context.Response.Headers.Append("X-Error-Message", "Page not found");
-        }
-    }
-    catch (Exception ex)
-    {
-        context.Response.Headers.Append("X-Error-Message", ex.Message);
-        throw;
-    }
-});
+app.UseCustomCSP();                 // Content Security Protocol Rules
+app.UseGlobalExceptionHandler();
 #endregion Configure Middleware
 
 app.Run();

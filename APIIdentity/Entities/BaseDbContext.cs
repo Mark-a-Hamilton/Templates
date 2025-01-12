@@ -5,6 +5,10 @@ public abstract class BaseDbContext : IdentityDbContext<User>
     private readonly UserManager<User> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
+    public BaseDbContext(DbContextOptions options) : base(options)
+    {
+    }
+
     public BaseDbContext(DbContextOptions<DataContext> options, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
         : base(options)
     {
